@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v0.9.0.json
+
+name: simple-mcp
+metadata:
+  template: simple-mcp@1.0.0
+  description: Simple MCP Server deployed to Azure Kubernetes Service (AKS)
+
+services:
+  server:
+    project: src/SimpleMcp.Server
+    language: csharp
+    host: containerapp
+
+hooks:
+  prebuild:
+    shell: sh
+    continueOnError: false
+    run: echo "Building Simple MCP Server"
+  postdeploy:
+    shell: sh
+    continueOnError: false
+    run: echo "Simple MCP Server deployed successfully"
+
+infra:
+  template: bicep
+  path: infrastructure

@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-mcp-server
+  namespace: default
+  labels:
+    app: simple-mcp
+    tier: backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: simple-mcp
+  template:
+    metadata:
+      labels:
+        app: simple-mcp
+        tier: backend
+    spec:
+      containers:
+      - name: mcp-server
+        image: acrmcpplcf4asneuh2u.azurecr.io/simplemcp-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 5057
+          protocol: TCP
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:5057"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 2
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - simple-mcp
+              topologyKey: kubernetes.io/hostname

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simple-mcp-config
+  namespace: default
+  labels:
+    app: simple-mcp
+data:
+  APP_NAME: "Simple MCP Server"
+  LOG_LEVEL: "Information"
+  ENVIRONMENT: "Production"

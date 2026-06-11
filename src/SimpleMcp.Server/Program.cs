@@ -140,4 +140,7 @@ app.MapGet("/", () => Results.Ok(new
     McpEndpoint = "/mcp"
 }));
 
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+app.MapGet("/ready", () => Results.Ok(new { status = "ready" }));
+
 app.Run();
